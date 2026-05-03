@@ -1,0 +1,71 @@
+# ==========================================
+# Neuro.Fuse-O-Forge Global Configuration
+# ==========================================
+
+# 1. Системные настройки очереди (Redis)
+broker:
+  host: "redis"
+  port: 6379
+  db: 0
+  ack_timeout: 300  # Время (сек), через которое задача вернется в очередь, если воркер "замолчал"
+  heartbeat_interval: 10 # Частота обновления статуса воркера (сек)
+
+# 2. Настройки очистки (Maintenance)
+maintenance:
+  cleanup_cron: "00:00"  # Время запуска ежедневной чистки
+  retention_hours: 24    # Сколько часов хранить файлы в папке /output
+  max_storage_gb: 50     # Лимит папки (если превышен, чистим принудительно)
+
+# 3. Настройки "Цехов" и Моделей
+forge_modules:
+  
+  # --- ВИЗУАЛЬНЫЙ ЦЕХ ---
+  IMAGE:
+    output_dir: "/app/output/IMAGE"
+    default_model: "stabilityai/stable-diffusion-xl-base-1.0"
+    limits:
+      max_width: 1536
+      max_height: 1536
+      max_steps: 100
+    # Маппинг для Smart Selection
+    smart_map:
+      photo: "sdxl-photoreal-v2"
+      anime: "animix-v3"
+      art: "oil-painting-lora"
+    aliases:
+      sdxl-base: "stabilityai/stable-diffusion-xl-base-1.0"
+      sdxl-photoreal-v2: "models/checkpoints/realism.safetensors"
+
+  # --- ЗВУКОВОЙ ЦЕХ ---
+  SOUND:
+    output_dir: "/app/output/SOUND"
+    default_model: "facebook/audiogen-medium"
+    limits:
+      max_duration: 30 # секунд
+    aliases:
+      audiogen: "facebook/audiogen-medium"
+      musicgen: "facebook/musicgen-small"
+
+  # --- ЛЕКСИЧЕСКИЙ ЦЕХ ---
+  TEXT:
+    output_dir: "/app/output/TEXT"
+    default_model: "meta-llama/Meta-Llama-3-8B-Instruct"
+    limits:
+      max_tokens: 2048
+      max_temp: 1.5
+    aliases:
+      fast: "meta-llama/Meta-Llama-3-8B-Instruct"
+      pro: "mistralai/Mistral-7B-v0.1"
+
+  # --- ЦЕХ МАКЕТОВ ---
+  UI:
+    output_dir: "/app/output/UI"
+    default_model: "stabilityai/stable-diffusion-xl-base-1.0" # Специфический LoRA или чекпоинт
+    style_presets:
+      minimalist: "white background, flat design, modern, sans-serif"
+      dark: "dark mode, neon highlights, futuristic, glassmorphism"
+
+# 4. Логирование
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

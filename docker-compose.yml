@@ -1,0 +1,93 @@
+version: '3.8'
+
+x-worker-base: &worker-base
+  build:
+    context: .
+    dockerfile: ./backend/worker/Dockerfile
+  volumes:
+    - ./volumes/models:/app/models
+    - ./volumes/output:/app/output
+    - ./backend/config.yml:/app/config.yml
+  environment:
+    - REDIS_HOST=redis
+    - REDIS_PORT=6379
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]
+  depends_on:
+    redis:
+      condition: service_healthy
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: forge-redis
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+    volumes:
+      - ./volumes/redis:/data
+
+  api:
+    build:
+      context: .
+      dockerfile: ./backend/api/Dockerfile
+    container_name: forge-api
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DATABASE_URL=sqlite+aiosqlite:////app/db/history.db
+    volumes:
+      - ./volumes/output:/app/output
+      - ./volumes/db:/app/db
+      - ./backend/config.yml:/app/config.yml
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  worker-image:
+    <<: *worker-base
+    container_name: forge-worker-image
+    environment:
+      - FORGE_TYPE=IMAGE
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  worker-sound:
+    <<: *worker-base
+    container_name: forge-worker-sound
+    environment:
+      - FORGE_TYPE=SOUND
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  worker-text:
+    <<: *worker-base
+    container_name: forge-worker-text
+    environment:
+      - FORGE_TYPE=TEXT
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    container_name: forge-ui
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - api
+
+networks:
+  default:
+    name: forge-network

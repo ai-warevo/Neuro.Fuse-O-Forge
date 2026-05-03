@@ -1,0 +1,29 @@
+# Данные (Volumes)
+volumes
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv
+env/
+venv/
+.pytest_cache/
+
+# Node.js (Frontend)
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build
+frontend/.env*.local
+
+# Системные файлы
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.md
+
+# Конфиги с секретами (если будешь добавлять ключи API)
+backend/config.local.yml
