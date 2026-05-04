@@ -4,18 +4,14 @@
 ```plaintext
 /backend/shared/
 ├── config.py            # Config singleton
-└── pydantic_models.py   # Pydantic schemas (Task, Params)
-```
+├── constants.py         # Shared constants and configuration
+├── pydantic_models.py   # Pydantic schemas (Task, Params)
+└── utils.py             # Shared utility functions
 
-#### Backend Common Directory (`/backend/common/`)
-
-```plaintext
-/backend/common/
-├── utils.py             # Shared utility functions
-└── constants.py         # Shared constants and configuration
 ```
 
 #### Backend API Directory (`/backend/api/`)
+
 ```plaintext
 /backend/api/
 ├── main.py              # FastAPI application entry point
@@ -32,6 +28,7 @@
 ```
 
 #### Backend Worker Directory (`/backend/worker/`)
+
 ```plaintext
 /backend/worker/
 ├── main.py              # Universal worker entry point
@@ -44,6 +41,7 @@
 ```
 
 #### Frontend Directory (`/frontend/`)
+
 ```plaintext
 /frontend/
 ├── app/
@@ -57,6 +55,7 @@
 ```
 
 #### Volumes Directory (`/volumes/`)
+
 ```plaintext
 /volumes/
 ├── models               # Model weights and checkpoints

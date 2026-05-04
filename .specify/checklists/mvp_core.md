@@ -9,6 +9,12 @@
   - [ ] Ensure config reloads on restart
   - **Success Criteria:** Configuration is loaded and accessible as a singleton
 
+- [ ] **Constants (`constants.py`)**
+  - [ ] Define shared constants and configuration
+  - [ ] Set task statuses (PENDING, PROCESSING, SUCCESS, ERROR, TIMEOUT)
+  - [ ] Configure default timeouts
+  - **Success Criteria:** Shared constants are defined and accessible across services
+
 - [ ] **Pydantic Models (`pydantic_models.py`)**
   - [ ] Define `TaskSchema` for task creation and validation
   - [ ] Define `ConfigSchema` for configuration validation
@@ -16,19 +22,11 @@
   - [ ] Ensure all services import these models
   - **Success Criteria:** Schemas are defined and used across services, validation errors are properly handled
 
-## 2. Backend Common Directory (`/backend/common/`)
-
 - [ ] **Utility Functions (`utils.py`)**
   - [ ] Implement shared utility functions
   - [ ] Add file path helpers
   - [ ] Include data formatting utilities
   - **Success Criteria:** Shared utility functions are implemented and reusable
-
-- [ ] **Constants (`constants.py`)**
-  - [ ] Define shared constants and configuration
-  - [ ] Set task statuses (PENDING, PROCESSING, SUCCESS, ERROR, TIMEOUT)
-  - [ ] Configure default timeouts
-  - **Success Criteria:** Shared constants are defined and accessible across services
 
 ## 3. Backend API Directory (`/backend/api/`)
 
