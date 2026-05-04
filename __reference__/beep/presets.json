@@ -1,0 +1,58 @@
+{
+  "army": {
+    "START_WORK": "Sharp drill sergeant whistle blast, tactical command signal, aggressive",
+    "END_WORK": "Two heavy military boot stomps on gravel, attention stance, disciplined thud",
+    "END_ROUND": "Short military bugle signal, brass trumpet call, battlefield morning",
+    "FINISH": "Powerful cannon fire shot, distant explosion, triumphant military victory",
+    "COUNTDOWN": "Short military snare drum hit, crisp rhythmic roll, tension"
+  },
+  "asmr_female": {
+    "START_WORK": "Intense ASMR female whisper, ear-to-ear breathy speech, tingles, high sensitivity microphone",
+    "END_WORK": "Soft ASMR air blowing into mic, gentle relaxing breath, soothing tingles, binaural",
+    "END_ROUND": "Fast ASMR fingernail tapping on hard plastic, rhythmic crisp clicks, high definition",
+    "FINISH": "Slow soothing ASMR mouth sounds, gentle lip smacks, satisfying finality, close-up",
+    "COUNTDOWN": "Sharp ASMR tongue pop, isolated mouth click sound, crisp trigger, no background noise"
+  },
+  "classic": {
+    "START_WORK": "Standard plastic referee whistle, short sharp blast, dry isolated sound, no reverb",
+    "END_WORK": "Simple digital beep, low frequency sinus wave, neutral UI notification, flat and clean",
+    "END_ROUND": "Deep zen gong hit, long resonant metallic tail, orchestral percussion, powerful",
+    "FINISH": "Short triumphant trumpet fanfare, bright brass celebration, victory melody, cheerful",
+    "COUNTDOWN": "Mechanical clock tick, wooden metronome click, isolated percussion, sharp"
+  },
+  "cyberpunk": {
+    "START_WORK": "Futuristic power up sound, high-tech digital startup, neon glitchy shimmer, cinematic SFX",
+    "END_WORK": "Cybernetic shutdown, hydraulic pressure release, power down humming, robotic hiss",
+    "END_ROUND": "Deep digital sub-bass drop, cybernetic UI notification, glitchy resonance",
+    "FINISH": "Triumphant synthwave chord, futuristic digital success melody, 80s sci-fi style",
+    "COUNTDOWN": "Short laser pulse, high-tech UI beep, futuristic digital click, isolated"
+  },
+  "fantasy": {
+    "START_WORK": "Sharp sword unsheathing sound, metallic blade ring, fantasy weapon draw, crisp",
+    "END_WORK": "Heavy wooden chest closing, deep thud, ancient dungeon door slam, resonant",
+    "END_ROUND": "Blacksmith hammer hitting anvil, loud metallic ring, fantasy workshop sound",
+    "FINISH": "Angelic choir chord, heavenly light shimmer, level up orchestral fanfare, magical",
+    "COUNTDOWN": "Magical sparkle chime, crystalline shimmer, short fairy dust sound, isolated"
+  },
+  "maniac": {
+    "START_WORK": "Sudden female horror scream, jump scare, cinematic reverb, high pitch",
+    "END_WORK": "Heavy wet raspy breathing, creepy male breath close to mic, sinister",
+    "END_ROUND": "Deep heavy iron bell toll, dark dungeon atmosphere, slow metallic resonance",
+    "FINISH": "Short psychotic male laugh, sinister echoing chuckle, evil villain",
+    "COUNTDOWN": "Sharp mechanical gun cocking, metallic shotgun click, menacing"
+  },
+  "sexy": {
+    "START_WORK": "Seductive female breathy whisper, sensual soft sigh, intimate, close to microphone",
+    "END_WORK": "Gentle female moan of relief, satisfied breathy exhale, sensual relaxed vibe",
+    "END_ROUND": "Loud cinematic lip smack kiss, muah sound, playful and clear, isolated",
+    "FINISH": "Long intimate female exhale, sensual satisfaction sigh, breathy finish, very close-up",
+    "COUNTDOWN": "Short playful tongue click, seductive tsk sound, crisp and flirtatious"
+  },
+  "tabata": {
+    "START_WORK": "Professional athletic whistle, loud piercing gym signal, stadium referee",
+    "END_WORK": "Single boxing ring bell ring, clear metallic ding, professional match start",
+    "END_ROUND": "Triple fast boxing bell hits, ding-ding-ding, end of round signal",
+    "FINISH": "Stadium crowd cheering, loud applause, motivational victory roar",
+    "COUNTDOWN": "Digital beep, electronic timer sound, sharp UI notification"
+  }
+}
