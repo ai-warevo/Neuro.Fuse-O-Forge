@@ -1,0 +1,6 @@
+os
+pathlib
+uuid
+datetime
+pydantic==2.0
+singleton-decorator==1.0.0

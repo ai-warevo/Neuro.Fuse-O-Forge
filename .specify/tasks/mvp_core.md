@@ -1,6 +1,6 @@
 ### Corrected Task List
 
-#### 1. Backend Common Directory (`/backend/shared/`)
+#### 1. Backend Shared Directory (`/backend/shared/`)
 
 - **Task 1:** Create `backend/shared/config.py`
   - Action: Implement singleton pattern for global config access.

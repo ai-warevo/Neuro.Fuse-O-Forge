@@ -1,7 +1,11 @@
-fastapi
-uvicorn[standard]
-redis
-GPUtil
+fastapi==0.110.0
+sqlalchemy[asyncio]==2.0.23
+aiosqlite==0.21.0
+redis==5.0.0
+python-dotenv==1.1.0
+pyyaml==6.3
+uvicorn==0.25.3
+alembic==1.13.1
 apscheduler
-PyYAML
 python-multipart
+GPUtil
