@@ -1,25 +1,45 @@
+# --- ЭТАП 1: Builder ---
+FROM python:3.10-slim AS builder
+
+# Устанавливаем инструменты сборки (если каким-то пакетам нужна компиляция)
+RUN apt-get update && apt-get install -y \
+    gcc \
+    python3-dev \
+    && pip install --upgrade pip \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Устанавливаем зависимости в локальную папку
+COPY backend/api/requirements.txt .
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+
+# --- ЭТАП 2: Final ---
 FROM python:3.10-slim
 
 WORKDIR /app
 
-# Установка системных зависимостей для мониторинга
+# Устанавливаем только необходимые runtime-утилиты (например, procps для мониторинга)
 RUN apt-get update && \
     apt-get install -y procps && \
     pip install --upgrade pip && \
     rm -rf /var/lib/apt/lists/*
 
-# Копируем зависимости из директории API
-COPY backend/api/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Копируем только установленные пакеты из builder
+COPY --from=builder /install /usr/local
 
-# Копируем структуру проекта, необходимую для работы API
+# Копируем код и конфигурации
 COPY backend/api/ ./backend/api/
 COPY backend/shared/ ./backend/shared/
 COPY backend/config.yaml ./backend/config.yaml
 
-# Переменная окружения для корректных импортов из корня /app
+# Настройки окружения
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
-# Запуск FastAPI через uvicorn
+# Открываем порт для документации
+EXPOSE 8000
+
+# Запуск через модуль uvicorn
 CMD ["uvicorn", "backend.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
