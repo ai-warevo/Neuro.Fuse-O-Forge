@@ -1,0 +1,82 @@
+[
+    {
+        "task_id": "01",
+        "description": "Implement `backend/shared/pydantic_models.py` (Schemas with strict constraints from config.yaml).",
+        "status": "Not Started"
+    },
+    {
+        "task_id": "02",
+        "description": "Implement `backend/shared/config_loader.py` (YAML parser with singleton pattern).",
+        "status": "Not Started"
+    },
+    {
+        "task_id": "03",
+        "description": "Implement `backend/api/models/task.py` (SQLAlchemy) and `backend/api/services/database.py` (Async engine + startup migrations).",
+        "status": "Not Started"
+    },
+    {
+        "task_id": "04",
+        "description": "Implement `backend/api/services/redis_client.py` (Producer logic for Streams and Pub/Sub).",
+        "status": "Not Started"
+    },
+    {
+        "task_id": "05",
+        "description": "Implement `backend/api/routes/tasks.py` (Generation, History, Stats endpoints).",
+        "status": "Not Started"
+    },
+    {
+        "task_id": "06",
+        "description": "Implement `backend/api/services/websocket_manager.py` (Real-time logs streaming from Redis).",
+        "status": "Not Started"
+    },
+    {
+        "task_id": "07",
+        "description": "Finalize `backend/api/main.py` with all middleware and bootstrap logic.",
+        "status": "Not Started"
+    },
+    {
+        "task_id": "08",
+        "description": "Implement `backend/worker/main.py` (XREADGROUP loop, ACK, Heartbeat thread).",
+        "status": "Not Started"
+    },
+    {
+        "task_id": "09",
+        "description": "Implement `backend/worker/manager.py` (Hot-swap logic and `torch.cuda.empty_cache()` on OOM).",
+        "status": "Not Started"
+    },
+    {
+        "task_id": "10",
+        "description": "Implement `backend/worker/pipelines/audio.py` (Audiocraft/AudioGen integration).",
+        "status": "Not Started"
+    },
+    {
+        "task_id": "11",
+        "description": "Setup Next.js 14+ with Bun, Tailwind, and the Cyberpunk-themed Layout.",
+        "status": "Not Started"
+    },
+    {
+        "task_id": "12",
+        "description": "Implement `useForgeStore` (logs/history) and `useMonitorStore` (GPU stats).",
+        "status": "Not Started"
+    },
+    {
+        "task_id": "13",
+        "description": "Implement the React hook for real-time updates and event handling.",
+        "status": "Not Started"
+    },
+    {
+        "task_id": "14",
+        "description": "Implement the **Forge Terminal** (logs console) and **GPU Monitor Widget**.",
+        "status": "Not Started"
+    },
+    {
+        "task_id": "15",
+        "description": "Implement the parameter form for AudioGen with validation matching config.yaml.",
+        "status": "Not Started"
+    },
+    {
+        "task_id": "16",
+        "description": "Finalize Dockerfiles and verify the full E2E flow.",
+        "status": "Not Started"
+    }
+]
