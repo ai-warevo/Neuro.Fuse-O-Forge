@@ -1,39 +1,36 @@
-import os
-import redis
 from fastapi import FastAPI
-from contextlib import asynccontextmanager
+from starlette.middleware.cors import CORSMiddleware
+import logging
+from backend.api.routes.tasks import router as tasks_router
+from backend.api.services.database import engine, SessionLocal
+from backend.shared.config import settings
 
-DB_DIR = "/app/db"
-DB_PATH = os.path.join(DB_DIR, "history.db")
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    if not os.path.exists(DB_DIR):
-        os.makedirs(DB_DIR, exist_ok=True)
-        print(f"--- [INIT] Created directory: {DB_DIR} ---")
-    
-    # Здесь в будущем будет инициализация таблиц БД (SQLAlchemy)
-    yield
-
-app = FastAPI(title="Neuro.Fuse-O-Forge API", lifespan=lifespan)
-
-# Подключение к Redis
-r = redis.Redis(
-    host=os.getenv('REDIS_HOST', 'redis'), 
-    port=os.getenv('REDIS_HOST', 6379), 
-    decode_responses=True
+# Initialize FastAPI app
+app = FastAPI(
+    title="Neuro.Fuse-O-Forge API",
+    version="0.1.0",
+    description="An event-driven API for managing tasks in the Neuro.Fuse-O-Forge project."
 )
 
-@app.get("/")
-def read_root():
-    try:
-        r.ping()
-        redis_status = "Connected"
-    except:
-        redis_status = "Disconnected"
-        
-    return {
-        "status": "Forge API Online",
-        "redis": redis_status,
-        "database": "Ready" if os.path.exists(DB_PATH) else "Initializing..."
-    }
+# CORS Middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Logging
+logging.basicConfig(level=logging.INFO)
+
+# Database initialization
+engine.connect()
+SessionLocal()
+
+# Redis initialization
+import redis
+redis_client = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
+
+# Include task routes
+app.include_router(tasks_router, prefix="/tasks", tags=["Tasks"])
