@@ -4,8 +4,8 @@ sqlalchemy[asyncio]==2.0.23
 aiosqlite==0.21.0
 redis==5.0.0
 python-dotenv==1.1.0
-pyyaml==6.3
-uvicorn==0.25.3
+pyyaml==6.0.3
+uvicorn==0.46.0
 alembic==1.13.1
 apscheduler
 python-multipart

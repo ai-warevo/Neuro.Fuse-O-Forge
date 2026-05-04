@@ -3,6 +3,7 @@ FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
 # Установка Python 3.10 и необходимых библиотек для обработки аудио/видео
 RUN apt-get update && apt-get install -y \
     python3.10 python3-pip ffmpeg libgl1-mesa-glx libglib2.0-0 \
+    && pip install --upgrade pip \
     && rm -rf /var/lib/apt/lists/*
 
 # Создаем симлинк, чтобы 'python' вел на python3

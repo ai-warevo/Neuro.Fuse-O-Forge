@@ -3,7 +3,10 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Установка системных зависимостей для мониторинга
-RUN apt-get update && apt-get install -y procps && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y procps && \
+    pip install --upgrade pip && \
+    rm -rf /var/lib/apt/lists/*
 
 # Копируем зависимости из директории API
 COPY backend/api/requirements.txt .

@@ -6,7 +6,7 @@ audiocraft==1.0.0
 transformers==4.34.0
 redis==5.0.0
 python-dotenv==1.1.0
-pyyaml==6.3
+pyyaml==6.0.3
 diffusers==0.20.0
 accelerate==0.22.0
 numpy==1.24.3

@@ -1,26 +1,34 @@
 # --- ЭТАП 1: Установка зависимостей ---
 FROM node:20-alpine AS deps
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat curl bash
 WORKDIR /app
 
-# Копируем файлы манифеста для кэширования слоев
-COPY package.json package-lock.json* ./
-RUN npm ci
+# Устанавливаем Bun
+RUN curl -fsSL https://bun.sh/install | bash \
+    && ln -s /root/.bun/bin/bun /usr/local/bin/bun
+
+# Копируем файлы зависимостей
+COPY frontend/package.json frontend/bun.lock* frontend/package-lock.json* ./
+
+# Используем Bun для супербыстрой установки
+# Он автоматически подхватит package-lock.json, если нет bun.lock
+RUN bun install --frozen-lockfile
 
 # --- ЭТАП 2: Сборка приложения ---
 FROM node:20-alpine AS builder
 WORKDIR /app
+# Копируем установленные модули и Bun из первого этапа
+COPY --from=deps /root/.bun /root/.bun
+RUN ln -s /root/.bun/bin/bun /usr/local/bin/bun
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY frontend/ ./
 
-# Отключаем телеметрию Next.js во время сборки
 ENV NEXT_TELEMETRY_DISABLED 1
-
-# Аргумент для API URL (прокидывается через docker-compose)
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
-RUN npm run build
+# Собираем проект через Bun (это быстрее)
+RUN bun run build
 
 # --- ЭТАП 3: Финальный образ (Production) ---
 FROM node:20-alpine AS runner
@@ -29,21 +37,17 @@ WORKDIR /app
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Создаем системного пользователя для безопасности
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Копируем необходимые файлы из builder
+# В финальном образе Bun НЕ НУЖЕН, только результат сборки
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
 USER nextjs
-
 EXPOSE 3000
-
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-# Запускаем сервер через standalone режим (минимум веса)
 CMD ["node", "server.js"]
