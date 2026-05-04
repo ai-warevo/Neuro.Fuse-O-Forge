@@ -1,0 +1,116 @@
+### Docker Compose Setup
+Create a `docker-compose.yml` file with services for Redis and the Python worker, including NVIDIA runtime support.
+
+```yml
+version: '3.8'
+
+x-worker-base: &worker-base
+  build:
+    context: .
+    dockerfile: ./backend/worker/Dockerfile
+  volumes:
+    - ./volumes/models:/app/models
+    - ./volumes/output:/app/output
+    - ./backend/config.yaml:/app/config.yaml
+  environment:
+    - REDIS_HOST=forge-redis
+    - REDIS_PORT=6379
+    - PYTHONPATH=/app
+    - PYTHONUNBUFFERED=1
+    - HF_HOME=/app/models/huggingface
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]
+  depends_on:
+    redis:
+      condition: service_healthy
+  networks:
+    - forge-network
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: forge-redis
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - ./volumes/redis:/data
+    networks:
+      - forge-network
+
+  api:
+    build:
+      context: .
+      dockerfile: ./backend/api/Dockerfile
+    container_name: forge-api
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=forge-redis
+      - REDIS_PORT=6379
+      - DATABASE_URL=sqlite+aiosqlite:////app/db/history.db
+      - PYTHONPATH=/app
+    volumes:
+      - ./volumes/output:/app/output
+      - ./volumes/db:/app/db
+      - ./backend/config.yaml:/app/config.yaml
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - forge-network
+
+  worker-sound:
+    <<: *worker-base
+    container_name: forge-worker-sound
+    environment:
+      - FORGE_TYPE=SOUND
+
+  worker-text:
+    <<: *worker-base
+    container_name: forge-worker-text
+    environment:
+      - FORGE_TYPE=TEXT
+
+  worker-ui:
+    <<: *worker-base
+    container_name: forge-worker-ui
+    environment:
+      - FORGE_TYPE=UI
+
+  worker-image:
+    <<: *worker-base
+    container_name: forge-worker-image
+    environment:
+      - FORGE_TYPE=IMAGE
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    container_name: forge-ui
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - forge-network
+
+networks:
+  forge-network:
+    driver: bridge
+```
