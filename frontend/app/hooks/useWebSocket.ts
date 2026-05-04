@@ -10,7 +10,7 @@ const useWebSocket = (taskId: string) => {
   useEffect(() => {
     if (!taskId) return;
 
-    const socket = new WebSocket(`ws://localhost:3000/api/ws/task/${taskId}`);
+    const socket = new WebSocket(`ws://forge-api:8000/ws/task/${taskId}`);
 
     socket.onopen = () => {
       console.log('WebSocket connection established');
