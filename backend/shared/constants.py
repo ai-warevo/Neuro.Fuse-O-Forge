@@ -1,16 +1,16 @@
 from enum import Enum
 
 class TaskStatus(Enum):
-    PENDING = "pending"
-    PROCESSING = "processing"
-    SUCCESS = "success"
-    ERROR = "error"
-    TIMEOUT = "timeout"
+    PENDING = "PENDING"
+    PROCESSING = "PROCESSING"
+    SUCCESS = "SUCCESS"
+    ERROR = "ERROR"
+    TIMEOUT = "TIMEOUT"
 
 class ForgeType(Enum):
-    SOUND = "sound"
-    IMAGE = "image"
-    TEXT = "text"
-    UI = "ui"
+    SOUND = "SOUND"
+    IMAGE = "IMAGE"
+    TEXT = "TEXT"
+    UI = "UI"
 
 TASK_TIMEOUT = 300

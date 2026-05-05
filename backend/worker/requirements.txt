@@ -1,13 +1,14 @@
-GPUtil
-torch==2.3.0 --index-url https://download.pytorch.org/whl/cu121
-torchvision --index-url https://download.pytorch.org/whl/cu121
-torchaudio --index-url https://download.pytorch.org/whl/cu121
-audiocraft==1.0.0
-transformers==4.34.0
-redis==5.0.0
-python-dotenv==1.1.0
-pyyaml==6.3
-diffusers==0.20.0
-accelerate==0.22.0
-numpy==1.24.3
-scipy==1.10.1
+torch==2.11.0
+torchaudio==2.11.0
+torchvision==0.26.0
+accelerate==1.13.0
+diffusers==0.37.1
+transformers==5.7.0
+GPUtil==1.4.0
+numpy==2.4.4
+pydantic==2.13.3
+pydantic-settings==2.14.0
+pyyaml==6.0.3
+python-dotenv==1.2.2
+redis==7.4.0
+scipy==1.17.1

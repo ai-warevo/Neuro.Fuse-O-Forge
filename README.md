@@ -48,9 +48,59 @@ Neuro.Fuse-O-Forge/
 - Склонируйте репозиторий.
 - Запустите всю экосистему:
 
+
+### Docker compose
+
 ```sh
-docker-compose up --build
+docker compose build --build-arg BUILDKIT_INLINE_CACHE=1 && docker-compose up
 ```
 
-- API будет доступно на порту 8000, интерфейс — на порту фронтенда.
+### .env + .venv
+
+```sh
+mkdir .venv
+# redis
+echo REDIS_HOST=localhost > venv/.env.redis
+echo REDIS_PORT=6379 >> venv/.env.redis
+
+# api
+echo DATABASE_URL=sqlite+aiosqlite:///./volumes/db/forge.db > venv/.env.api
+
+# worker.base
+echo PYTHONUNBUFFERED=1 > venv/.env.worker.base
+echo HF_HOME=./volumes/models/huggingface >> venv/.env.worker.base
+
+# worker.#
+echo FORGE_TYPE=SOUND > venv/.env.worker.sound
+echo FORGE_TYPE=IMAGE > venv/.env.worker.image
+echo FORGE_TYPE=UI > venv/.env.worker.ui
+echo FORGE_TYPE=TEXT > venv/.env.worker.text
+```
+
+### Local Api
+
+```sh
+# create venv & install deps
+uv venv venv/api --python 3.12
+uv pip install -r ./backend/api/requirements.txt --python venv/api
+
+# run 
+uv run --no-project --python venv/api --env-file venv/.env.redis --env-file venv/.env.api python -m uvicorn backend.api.main:app --host 0.0.0.0 --port 8000
+
+
+```
+
+### Local Worker (FORGE_TYPE=SOUND | IMAGE | UI | TEXT)
+
+```sh
+# create venv & install deps
+uv venv venv/worker_sound --python 3.12
+uv pip install -r ./backend/worker/requirements.txt --python venv/worker_sound
+
+# run 
+uv run --python venv/worker_sound --env-file venv/.env.redis --env-file venv/.env.worker.base --env-file venv/.env.worker.sound python -m backend.worker.main
+
+```
+
+- API будет доступно на порту 8000, интерфейс — на порту 3000.
 

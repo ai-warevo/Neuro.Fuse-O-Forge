@@ -1,55 +1,43 @@
-import redis
-from backend.shared.config import settings
-from backend.api.services.database import SessionLocal, get_db
-from backend.api.models.task import Task, get_task_by_id
-from backend.shared.constants import TaskStatus, ForgeType
-from backend.worker.pipelines.audio import generate_audio
-from backend.worker.pipelines.image import generate_image
-from backend.worker.pipelines.text import generate_text
+import asyncio
+import time
+from backend.shared.services.redis import RedisManager
+from backend.shared.utils import setup_graceful_exit
+from backend.worker.utils.log import get_worker_logger
+from backend.worker.processor import TaskProcessor
+from backend.worker.utils.const import WORKER_TYPE
 
-# Initialize Redis client
-redis_client = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
+stream_name = f"forge:tasks:{WORKER_TYPE}"
+group_name = "workers"
+logger = get_worker_logger("main")
 
-def process_task(task_id: str, task_type: str, prompt: str, params: dict):
-    # Load appropriate pipeline based on task type
-    if task_type == ForgeType.SOUND.value:
-        output_path = generate_audio(prompt, params)
-    elif task_type == ForgeType.IMAGE.value:
-        output_path = generate_image(prompt, params)
-    elif task_type == ForgeType.TEXT.value:
-        output_path = generate_text(prompt, params)
-    else:
-        raise ValueError(f"Unsupported task type: {task_type}")
+async def run_iteration(broker: RedisManager):
+    """Один цикл опроса брокера и запуска задач."""
+    response = await broker.fetch_tasks(stream_name, group_name)
+    if not response:
+        return
 
-    # Update task status in database
-    db = SessionLocal()
-    task = get_task_by_id(db, task_id)
-    if not task:
-        raise ValueError("Task not found")
-    
-    task.status = TaskStatus.SUCCESS.value
-    task.output_path = output_path
-    db.commit()
+    processor = TaskProcessor(broker)
+    for _, messages in response:
+        for m_id, m_fields in messages:
+            try:
+              await processor.execute(m_id, m_fields)
+            finally:
+              await broker.acknowledge(stream_name, group_name, m_id)
 
-    # Acknowledge task in Redis
-    redis_client.xack(f"forge:tasks:{task_type}", "workers", task_id)
+async def main():
+    async with RedisManager(WORKER_TYPE) as broker:
+      keep_running = setup_graceful_exit(WORKER_TYPE)
+      logger.info(f"🚀 Forge Worker [{WORKER_TYPE}] запущен.")
+      await broker.create_stream_and_group(stream_name, group_name)
+      while keep_running[WORKER_TYPE]:
+          try:
+              await broker.heartbeat()
+              await run_iteration(broker)
+          except Exception as e:
+              logger.critical(f"💥 Ошибка: {e}")
+              time.sleep(5)
+
+    logger.info("👋 Воркер остановлен.")
 
 if __name__ == "__main__":
-    while True:
-        response = redis_client.xreadgroup(
-            groupname="workers",
-            consumername="worker1",
-            streams={f"forge:tasks:*": ">"}
-        )
-        
-        for _, messages in response:
-            for message in messages:
-                task_id, fields = message[0].decode("utf-8"), message[1]
-                task_type = fields["task_type"].decode("utf-8")
-                prompt = fields["prompt"].decode("utf-8")
-                params = eval(fields["params"].decode("utf-8"))
-                
-                try:
-                    process_task(task_id, task_type, prompt, params)
-                except Exception as e:
-                    print(f"Error processing task {task_id}: {e}")
+    asyncio.run(main())
