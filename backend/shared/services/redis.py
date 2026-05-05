@@ -1,4 +1,4 @@
-import redis
+import redis.asyncio as redis
 from backend.shared.config import settings
 
 # Initialize Redis client

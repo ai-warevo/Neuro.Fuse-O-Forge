@@ -1,7 +1,8 @@
-from pathlib import Path
 import uuid
+import time
+from contextlib import contextmanager
 from datetime import datetime
-
+from pathlib import Path
 from backend.shared.constants import ForgeType
 from .config import settings
 
@@ -28,3 +29,10 @@ def get_output_path(task_id: str, task_type: ForgeType, timestamp: datetime) -> 
 
 def generate_unique_task_id() -> str:
     return str(uuid.uuid4())
+
+@contextmanager
+def bench(name):
+    start = time.time()
+    yield
+    end = time.time()
+    print(f"{name}: {end - start:.4f} seconds")

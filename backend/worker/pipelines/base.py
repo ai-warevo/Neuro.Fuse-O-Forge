@@ -1,6 +1,7 @@
 import torch
 from abc import ABC, abstractmethod
 from pathlib import Path
+from backend.shared.utils import bench
 
 class BaseGenerator(ABC):
     _instances = {}
@@ -26,21 +27,27 @@ class BaseGenerator(ABC):
 
     def generate(self, prompt: str, output_path: str, **params):
         if self.model is None:
-            self.load_model()
+            with bench("Loading Model"):
+                self.load_model()
         
         try:
             # Создаем директорию, если её нет
             path = Path(output_path)
             path.parent.mkdir(parents=True, exist_ok=True)
 
-            result = self.run_generation(prompt, **params)
+            with bench("Generating Content"):
+              result = self.run_generation(prompt, **params)
             
             # Сохранение (логика сохранения у всех разная, поэтому вернем путь)
-            return self.save_result(result, path)
+            return self.save(result, path)
         finally:
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
 
+    def save(self, result, path: Path):
+        with bench("Saving Result"):
+          return self.save_result(result, path)
+    
     def save_result(self, result, path: Path):
         # По умолчанию просто возвращаем путь, если сохранение внутри run_generation
         return str(path)

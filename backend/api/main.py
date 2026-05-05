@@ -1,17 +1,16 @@
 import asyncio
 import logging
-from backend.api.models.task import Task
-from backend.shared.constants import TaskStatus
 import redis.asyncio as redis
 from fastapi import FastAPI
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
-from sqlalchemy.future import select
+from backend.api.models.task import Base, get_task_by_id
 from backend.api.routes.tasks import router as tasks_router
 from backend.api.routes.ws import router as ws_router
-from backend.api.services.database import engine_sync, get_db, SessionLocal
 from backend.api.services.websocket_manager import websocket_manager
-from backend.shared.config import settings
+from backend.api.services.database import engine_async, get_async_session
+from backend.shared.services.redis import redis_client
+from backend.shared.constants import TaskStatus
 
 app = FastAPI(
     title="Neuro.Fuse-O-Forge API",
@@ -29,15 +28,31 @@ app.add_middleware(
 
 logging.basicConfig(level=logging.INFO)
 
-engine_sync.connect()
-SessionLocal()
+async def consumer_group_exists(stream, group):
+    try:
+        await redis_client.xinfo_groups(stream)
+        return True
+    except redis.ResponseError:
+        return False
 
-redis_client = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
+async def create_stream_and_group():
+    stream = 'forge:results'
+    group = 'forge-group'
+
+    if not await consumer_group_exists(stream, group):
+        await redis_client.xgroup_create(
+            stream,
+            group,
+            mkstream=True
+        )
+    else:
+        logging.info(f"Consumer group {group} already exists.")
 
 class ResultMessage(BaseModel):
     task_id: str
     status: str
-    result_url: str = None
+    output_path: str = None
+    error_message: str = None
 
 async def listen_to_results():
     while True:
@@ -52,26 +67,33 @@ async def listen_to_results():
             for _, messages in response:
                 for _, fields in messages:
                     task_id = fields.get('task_id')
-                    status = fields.get('status')
-                    result_url = fields.get('result_url')
+                    status = TaskStatus(fields.get('status'))
+                    output_path = fields.get('output_path')
+                    error_message = fields.get('error_message')
 
-                    async with get_db() as db:
-                        query = select(Task).where(Task.task_id == task_id)
-                        result = await db.execute(query)
-                        task = result.scalars().first()
+                    async with get_async_session() as db:
+                        task = get_task_by_id(db, task_id)
                         
                         if task:
-                            task.status = TaskStatus.SUCCESS if status == 'SUCCESS' else TaskStatus.ERROR
-                            task.result_url = result_url
+                            task.status = status
+                            task.output_path = output_path
+                            task.error_message = error_message
                             await db.commit()
 
-                    message = ResultMessage(task_id=task_id, status=status, result_url=result_url).json()
+                    message = ResultMessage(
+                        task_id=task_id,
+                        status=status,
+                        output_path=output_path,
+                        error_message=error_message).json()
                     await websocket_manager.broadcast(task_id, message)
                     await redis_client.xack('forge:results', 'forge-group', fields['message_id'])
 
 
 @app.on_event("startup")
 async def startup():
+    async with engine_async.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    await create_stream_and_group()
     asyncio.create_task(listen_to_results())
 
 app.include_router(tasks_router, prefix="/tasks", tags=["Tasks"])

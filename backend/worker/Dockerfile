@@ -1,51 +1,52 @@
-# --- ЭТАП 1: Builder (Сборка зависимостей) ---
-FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04 AS builder
+FROM nvidia/cuda:13.2.1-devel-ubuntu24.04 AS builder
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Устанавливаем системные пакеты, необходимые для сборки некоторых библиотек
-RUN apt-get update && apt-get install -y \
-    python3.10 python3-pip pkg-config \
-    && pip install --upgrade pip \
+RUN sed -i 's/archive.ubuntu.com/mirror.yandex.ru/g' /etc/apt/sources.list && \
+    sed -i 's/security.ubuntu.com/mirror.yandex.ru/g' /etc/apt/sources.list && \
+    sed -i 's/archive.ubuntu.com/mirror.yandex.ru/g' /etc/apt/sources.list.d/ubuntu.sources && \
+    sed -i 's/security.ubuntu.com/mirror.yandex.ru/g' /etc/apt/sources.list.d/ubuntu.sources && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    python3.12 python3-pip python3-dev pkg-config git \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-
-# Копируем только requirements для установки зависимостей
 COPY backend/worker/requirements.txt .
 
-# Устанавливаем зависимости в отдельную директорию /app/deps
-# Это позволит избежать копирования лишних системных библиотек
-RUN pip install --no-cache-dir --target=/app/deps -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install \
+    # --no-cache \
+    --target /app/deps \
+    --system \
+    --index-url https://download.pytorch.org/whl/cu124 \
+    --extra-index-url https://pypi.org/simple \
+    -r requirements.txt
 
+###
 
-# --- ЭТАП 2: Final (Легкий образ для работы) ---
-FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
+FROM nvidia/cuda:13.2.1-runtime-ubuntu24.04 AS runtime
 
-# Устанавливаем только runtime-зависимости (ffmpeg, glib для opencv и т.д.)
+RUN sed -i 's/archive.ubuntu.com/mirror.yandex.ru/g' /etc/apt/sources.list && \
+    sed -i 's/security.ubuntu.com/mirror.yandex.ru/g' /etc/apt/sources.list && \
+    sed -i 's/archive.ubuntu.com/mirror.yandex.ru/g' /etc/apt/sources.list.d/ubuntu.sources && \
+    sed -i 's/security.ubuntu.com/mirror.yandex.ru/g' /etc/apt/sources.list.d/ubuntu.sources
+
 RUN apt-get update && apt-get install -y \
-    python3.10 \
+    python3.12 \
     ffmpeg \
-    libgl1-mesa-glx \
+    libgl1 \
+    libglx-mesa0 \
     libglib2.0-0 \
-    && pip install --upgrade pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Создаем симлинк для удобства
 RUN ln -s /usr/bin/python3 /usr/bin/python
-
 WORKDIR /app
-
-# Копируем установленные пакеты из builder-а в стандартную директорию python
-COPY --from=builder /app/deps /usr/local/lib/python3.10/dist-packages
-
-# Копируем исходный код проекта
+COPY --from=builder /app/deps /usr/local/lib/python3.12/dist-packages
+COPY backend/api/ ./backend/api/
 COPY backend/worker/ ./backend/worker/
 COPY backend/shared/ ./backend/shared/
 COPY backend/config.yaml ./backend/config.yaml
-
-# Настройки окружения
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 ENV CUDA_VISIBLE_DEVICES=0
 
-# Запуск
 CMD ["python", "backend/worker/main.py"]

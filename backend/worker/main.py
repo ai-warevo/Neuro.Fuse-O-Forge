@@ -1,38 +1,19 @@
-import redis
-from backend.shared.config import settings
-from backend.api.services.database import SessionLocal, get_db
-from backend.api.models.task import Task, get_task_by_id
-from backend.shared.constants import TaskStatus, ForgeType
+from backend.shared.services.redis import publish_result_to_stream
+from backend.shared.constants import ForgeType, TaskStatus
+from backend.shared.services import redis_client
 from backend.worker.pipelines.audio import generate_audio
 from backend.worker.pipelines.image import generate_image
 from backend.worker.pipelines.text import generate_text
 
-# Initialize Redis client
-redis_client = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
-
-def process_task(task_id: str, task_type: str, prompt: str, params: dict):
-    # Load appropriate pipeline based on task type
+def process_task(task_type: str, prompt: str, params: dict):
     if task_type == ForgeType.SOUND.value:
-        output_path = generate_audio(prompt, params)
+        return generate_audio(prompt, params)
     elif task_type == ForgeType.IMAGE.value:
-        output_path = generate_image(prompt, params)
+        return generate_image(prompt, params)
     elif task_type == ForgeType.TEXT.value:
-        output_path = generate_text(prompt, params)
+        return generate_text(prompt, params)
     else:
         raise ValueError(f"Unsupported task type: {task_type}")
-
-    # Update task status in database
-    db = SessionLocal()
-    task = get_task_by_id(db, task_id)
-    if not task:
-        raise ValueError("Task not found")
-    
-    task.status = TaskStatus.SUCCESS.value
-    task.output_path = output_path
-    db.commit()
-
-    # Acknowledge task in Redis
-    redis_client.xack(f"forge:tasks:{task_type}", "workers", task_id)
 
 if __name__ == "__main__":
     while True:
@@ -50,6 +31,10 @@ if __name__ == "__main__":
                 params = eval(fields["params"].decode("utf-8"))
                 
                 try:
-                    process_task(task_id, task_type, prompt, params)
+                    output_path = process_task(task_id, task_type, prompt, params)
+                    publish_result_to_stream(task_id, TaskStatus.SUCCESS, output_path)
                 except Exception as e:
                     print(f"Error processing task {task_id}: {e}")
+                    publish_result_to_stream(task_id, TaskStatus.ERROR, None, e)
+
+                redis_client.xack(f"forge:tasks:{task_type}", "workers", task_id)

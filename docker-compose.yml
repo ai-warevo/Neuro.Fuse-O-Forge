@@ -2,6 +2,7 @@ x-worker-base: &worker-base
   build:
     context: .
     dockerfile: ./backend/worker/Dockerfile
+  pull_policy: if_not_present
   volumes:
     - ./volumes/models:/app/models
     - ./volumes/output:/app/output
@@ -20,14 +21,15 @@ x-worker-base: &worker-base
             count: 1
             capabilities: [gpu]
   depends_on:
-    redis:
+    forge-redis:
       condition: service_healthy
   networks:
     - forge-network
 
 services:
-  redis:
+  forge-redis:
     image: redis:7-alpine
+    pull_policy: if_not_present
     container_name: forge-redis
     command: redis-server --appendonly yes
     healthcheck:
@@ -35,22 +37,25 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    ports:
+      - "6379:6379"
     volumes:
       - ./volumes/redis:/data
     networks:
       - forge-network
 
-  api:
+  forge-api:
     build:
       context: .
       dockerfile: ./backend/api/Dockerfile
+    pull_policy: if_not_present
     container_name: forge-api
     ports:
       - "8000:8000"
     environment:
       - REDIS_HOST=forge-redis
       - REDIS_PORT=6379
-      - DATABASE_URL=sqlite+aiosqlite:////app/db/history.db
+      - DATABASE_URL=sqlite+aiosqlite:////app/db/forge.db
       - PYTHONPATH=/app
     volumes:
       - ./volumes/output:/app/output
@@ -60,46 +65,47 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 10s
     depends_on:
-      redis:
+      forge-redis:
         condition: service_healthy
     networks:
       - forge-network
 
-  worker-sound:
-    <<: *worker-base
-    container_name: forge-worker-sound
-    environment:
-      - FORGE_TYPE=SOUND
+  # forge-worker-sound:
+  #   <<: *worker-base
+  #   container_name: forge-worker-sound
+  #   environment:
+  #     - FORGE_TYPE=SOUND
 
-  worker-text:
-    <<: *worker-base
-    container_name: forge-worker-text
-    environment:
-      - FORGE_TYPE=TEXT
+  # forge-worker-text:
+  #   <<: *worker-base
+  #   container_name: forge-worker-text
+  #   environment:
+  #     - FORGE_TYPE=TEXT
 
-  worker-ui:
-    <<: *worker-base
-    container_name: forge-worker-ui
-    environment:
-      - FORGE_TYPE=UI
+  # forge-worker-ui:
+  #   <<: *worker-base
+  #   container_name: forge-worker-ui
+  #   environment:
+  #     - FORGE_TYPE=UI
 
-  worker-image:
+  forge-worker-image:
     <<: *worker-base
     container_name: forge-worker-image
     environment:
       - FORGE_TYPE=IMAGE
 
-  frontend:
+  forge-ui:
     build:
       context: .
       dockerfile: ./frontend/Dockerfile
+    pull_policy: if_not_present
     container_name: forge-ui
     ports:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://forge-api:8000
     depends_on:
-      api:
+      forge-api:
         condition: service_healthy
     networks:
       - forge-network
