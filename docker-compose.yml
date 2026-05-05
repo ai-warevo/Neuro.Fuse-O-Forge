@@ -70,23 +70,23 @@ services:
     networks:
       - forge-network
 
-  # forge-worker-sound:
-  #   <<: *worker-base
-  #   container_name: forge-worker-sound
-  #   environment:
-  #     - FORGE_TYPE=SOUND
+  forge-worker-sound:
+    <<: *worker-base
+    container_name: forge-worker-sound
+    environment:
+      - FORGE_TYPE=SOUND
 
-  # forge-worker-text:
-  #   <<: *worker-base
-  #   container_name: forge-worker-text
-  #   environment:
-  #     - FORGE_TYPE=TEXT
+  forge-worker-text:
+    <<: *worker-base
+    container_name: forge-worker-text
+    environment:
+      - FORGE_TYPE=TEXT
 
-  # forge-worker-ui:
-  #   <<: *worker-base
-  #   container_name: forge-worker-ui
-  #   environment:
-  #     - FORGE_TYPE=UI
+  forge-worker-ui:
+    <<: *worker-base
+    container_name: forge-worker-ui
+    environment:
+      - FORGE_TYPE=UI
 
   forge-worker-image:
     <<: *worker-base

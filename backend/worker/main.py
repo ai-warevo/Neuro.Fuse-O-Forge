@@ -1,6 +1,5 @@
-from backend.shared.services.redis import publish_result_to_stream
+from backend.shared.services.redis import redis_client, publish_result_to_stream
 from backend.shared.constants import ForgeType, TaskStatus
-from backend.shared.services import redis_client
 from backend.worker.pipelines.audio import generate_audio
 from backend.worker.pipelines.image import generate_image
 from backend.worker.pipelines.text import generate_text
@@ -15,7 +14,7 @@ def process_task(task_type: str, prompt: str, params: dict):
     else:
         raise ValueError(f"Unsupported task type: {task_type}")
 
-if __name__ == "__main__":
+def main():
     while True:
         response = redis_client.xreadgroup(
             groupname="workers",
@@ -38,3 +37,6 @@ if __name__ == "__main__":
                     publish_result_to_stream(task_id, TaskStatus.ERROR, None, e)
 
                 redis_client.xack(f"forge:tasks:{task_type}", "workers", task_id)
+
+if __name__ == "__main__":
+    main()
