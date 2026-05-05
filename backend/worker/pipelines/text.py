@@ -8,7 +8,7 @@ class TextGenerator(BaseGenerator):
         self.tokenizer = GPT2Tokenizer.from_pretrained(name)
         self.model = GPT2LMHeadModel.from_pretrained(name).to("cuda")
 
-    def run_generation(self, prompt: str, **params):
+    def run_generation(self, prompt: str, params: dict):
         inputs = self.tokenizer.encode(prompt, return_tensors="pt").to("cuda")
         with torch.no_grad():
             outputs = self.model.generate(inputs, max_length=params.get("length", 50))

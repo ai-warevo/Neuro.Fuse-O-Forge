@@ -9,7 +9,7 @@ class ImageGenerator(BaseGenerator):
             model_id, scheduler=DDIMScheduler(), torch_dtype=torch.float16
         ).to("cuda")
 
-    def run_generation(self, prompt: str, **params):
+    def run_generation(self, prompt: str, params: dict):
         with torch.autocast("cuda"):
             image = self.model(prompt=prompt).images[0]
         return image

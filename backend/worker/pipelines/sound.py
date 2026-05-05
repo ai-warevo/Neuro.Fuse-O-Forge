@@ -3,15 +3,17 @@ import scipy.io.wavfile
 from diffusers import AudioLDM2Pipeline
 from .base import BaseGenerator
 
-class AudioGenerator(BaseGenerator):
+class SoundGenerator(BaseGenerator):
     def load_model(self):
+        if not torch.cuda.is_available():
+            raise RuntimeError("CUDA не доступна. Проверьте проброс GPU.")
         self.pipe = AudioLDM2Pipeline.from_pretrained(
             "cvssp/audioldm2-music", 
             torch_dtype=torch.float16
         )
         self.pipe.to("cuda")
 
-    def run_generation(self, prompt: str, **params):
+    def run_generation(self, prompt: str, params: dict):
         outputs = self.pipe(
             prompt,
             num_inference_steps=params.get("steps", 200),

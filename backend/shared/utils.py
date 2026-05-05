@@ -1,5 +1,6 @@
-import uuid
+import signal
 import time
+import uuid
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
@@ -31,8 +32,28 @@ def generate_unique_task_id() -> str:
     return str(uuid.uuid4())
 
 @contextmanager
-def bench(name):
+def bench(name: str, logger=None):
+    """Замеряет время выполнения и пишет в лог."""
     start = time.time()
     yield
     end = time.time()
-    print(f"{name}: {end - start:.4f} seconds")
+    duration = f"{name}: {end - start:.4f} seconds"
+    
+    if logger:
+        logger.info(duration)
+    else:
+        print(duration)
+
+def setup_graceful_exit(key: str):
+    """Настраивает обработку сигналов завершения."""
+    keep_running = {}
+    keep_running[key] = True
+
+    def handle_exit(signum, frame):
+        print("🛑 Завершение работы...")
+        keep_running[key] = False
+
+    signal.signal(signal.SIGINT, handle_exit)
+    signal.signal(signal.SIGTERM, handle_exit)
+    
+    return keep_running

@@ -1,27 +1,27 @@
 import json
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from backend.api.deps import get_broker
 from backend.api.models.task import Task, get_task_by_id
 from backend.api.schemas.tasks import TaskCreate
 from backend.api.services.database import get_async_session
-from backend.shared.services.redis import push_task_to_stream
+from backend.shared.services.redis import RedisManager
 
 router = APIRouter()
 
 @router.post("/")
-async def create_task(task: TaskCreate, db: AsyncSession = Depends(get_async_session)):
-    # Create task in the database
+async def create_task(task: TaskCreate, redis: RedisManager = Depends(get_broker), db: AsyncSession = Depends(get_async_session)):
     new_task = Task(
         type=task.type,
         prompt=task.prompt,
         params=task.params
     )
     db.add(new_task)
-    db.commit()
-    db.refresh(new_task)
+    await db.commit()
+    await db.refresh(new_task)
     
-    # Publish task to Redis stream
-    push_task_to_stream(new_task.id,task.type,new_task.prompt, json.dumps(new_task.params or {}))
+    params = json.dumps(new_task.params or {})
+    await redis.push_task_to_stream(new_task.id, task.type, task.prompt, params)
     
     return new_task
 

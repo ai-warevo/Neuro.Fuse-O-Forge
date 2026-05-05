@@ -13,7 +13,7 @@ const SonicForge = () => {
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/tasks`, {
         prompt,
-        type: 'AUDIO',
+        type: 'SOUND',
         params: { steps, duration },
       });
       setTaskId(response.data.id);

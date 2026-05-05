@@ -1,19 +1,20 @@
 import torch
 from abc import ABC, abstractmethod
 from pathlib import Path
-from backend.shared.utils import bench
+from backend.shared.utils import bench, get_output_path
+from backend.worker.utils.log import get_worker_logger
 
 class BaseGenerator(ABC):
     _instances = {}
 
     def __new__(cls):
-        # Реализация Singleton для всех наследников по отдельности
         if cls not in cls._instances:
             cls._instances[cls] = super(BaseGenerator, cls).__new__(cls)
         return cls._instances[cls]
 
     def __init__(self):
         self.model = None
+        self.logger = get_worker_logger(self.__class__.__name__)
 
     @abstractmethod
     def load_model(self):
@@ -21,11 +22,11 @@ class BaseGenerator(ABC):
         pass
 
     @abstractmethod
-    def run_generation(self, prompt: str, **params):
+    def run_generation(self, prompt: str, params):
         """Метод с логикой генерации конкретной нейронки."""
         pass
 
-    def generate(self, prompt: str, output_path: str, **params):
+    def generate(self, prompt: str, output_path: str, params):
         if self.model is None:
             with bench("Loading Model"):
                 self.load_model()
@@ -36,7 +37,7 @@ class BaseGenerator(ABC):
             path.parent.mkdir(parents=True, exist_ok=True)
 
             with bench("Generating Content"):
-              result = self.run_generation(prompt, **params)
+              result = self.run_generation(prompt, params)
             
             # Сохранение (логика сохранения у всех разная, поэтому вернем путь)
             return self.save(result, path)
