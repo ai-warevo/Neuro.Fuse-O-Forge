@@ -3,7 +3,6 @@ from backend.shared.config import settings
 
 # Async Engine for FastAPI
 DATABASE_URL_ASYNC = settings.DATABASE_URL
-print(DATABASE_URL_ASYNC)
 engine_async: AsyncEngine = create_async_engine(
     DATABASE_URL_ASYNC,
     echo=True,

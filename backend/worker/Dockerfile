@@ -41,10 +41,10 @@ RUN apt-get update && apt-get install -y \
 RUN ln -s /usr/bin/python3 /usr/bin/python
 WORKDIR /app
 COPY --from=builder /app/deps /usr/local/lib/python3.12/dist-packages
+COPY backend/config.yaml ./backend/config.yaml
+COPY backend/shared/ ./backend/shared/
 COPY backend/api/ ./backend/api/
 COPY backend/worker/ ./backend/worker/
-COPY backend/shared/ ./backend/shared/
-COPY backend/config.yaml ./backend/config.yaml
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 ENV CUDA_VISIBLE_DEVICES=0
