@@ -29,13 +29,14 @@ const LexiForge = () => {
       
       {/* 📜 Left Column: Linguistic Parameters */}
       <div className="lg:col-span-4 space-y-6">
-        <header className="space-y-1 border-l-4 border-amber-500 pl-4">
+        <div className="space-y-1 border-l-4 border-amber-500 pl-4">
           <h1 className="text-2xl font-black uppercase tracking-tighter text-zinc-900 dark:text-white">Lexi Forge</h1>
           <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Unit: LLM-Core-Alpha-7</p>
-        </header>
+        </div>
 
         <div className="bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 shadow-sm">
-          <PromptForm onGenerate={handleGenerate} />
+          TODO....
+          {/* <PromptForm onGenerate={handleGenerate} /> */}
         </div>
 
         {/* Semantic Context Panel */}

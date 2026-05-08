@@ -7,7 +7,7 @@ export default function Home() {
     <div className="w-full space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000 ease-out">
       
       {/* 🟢 Adaptive Header Section */}
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-l-4 border-blue-600 pl-6 py-1">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-l-4 border-blue-600 pl-6 py-1">
         <div className="space-y-1">
           <h2 className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-white uppercase italic">
             Operational <span className="text-blue-600 dark:text-blue-400 not-italic">Overview</span>
@@ -33,7 +33,7 @@ export default function Home() {
             ESTABLISHED
           </span>
         </div>
-      </header>
+      </div>
 
       {/* 🏗️ Core Dashboard Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

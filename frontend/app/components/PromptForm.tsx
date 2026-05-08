@@ -1,70 +1,78 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
 
-export const PromptForm = ({ onGenerate }: { onGenerate: (p: string, s: number, g: number) => void }) => {
-  const [prompt, setPrompt] = useState('');
-  const [steps, setSteps] = useState(25);
-  const [guidance, setGuidance] = useState(7.5);
+interface PromptFormProps {
+  onGenerate: (prompt: string, negativePrompt: string, modelId: string) => void;
+  children?: ReactNode;
+  placeholder?: string;
+  models: AIModel[];
+  defaults: Record<string, string>;
+}
+
+export interface AIModel {
+  id: string;
+  name: string;
+}
+
+export const PromptForm = ({ defaults, onGenerate, models, children, placeholder }: PromptFormProps) => {
+  const [prompt, setPrompt] = useState(defaults?.prompt || '');
+  const [negativePrompt, setNegativePrompt] = useState(defaults?.negativePrompt || '');
+  const [selectedModel, setSelectedModel] = useState(models[0]?.id || '');
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-top-2 duration-500">
-      
-      {/* 📝 Prompt Input Area */}
+
+      {/* 🤖 Model Selector (Общий компонент) */}
       <div className="group space-y-2">
-        <div className="flex justify-between items-center px-1">
-          <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Neural Input</label>
-          <span className="text-[9px] font-mono text-blue-500">READY_TO_FORGE</span>
-        </div>
+        <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 px-1">Neural Core Selection</label>
+        <select 
+          value={selectedModel}
+          onChange={(e) => setSelectedModel(e.target.value)}
+          className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 p-3 rounded-xl font-mono text-[11px] outline-hidden focus:border-blue-500/50 transition-all cursor-pointer appearance-none"
+        >
+          {models.map(m => (
+            <option key={m.id} value={m.id}>{m.name}</option>
+          ))}
+        </select>
+      </div>
+      
+      {/* 📝 Main Prompt */}
+      <div className="group space-y-2">
+        <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 px-1">Neural Input</label>
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Describe the visual essence..."
+          placeholder={placeholder || "Describe the essence..."}
           rows={3}
           className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 p-4 rounded-2xl font-mono text-sm outline-hidden ring-blue-500/20 focus:ring-4 focus:border-blue-500/50 transition-all resize-none shadow-inner"
         />
       </div>
 
-      {/* ⚙️ Parameters Grid */}
-      <div className="grid grid-cols-2 gap-4">
-        {/* Steps Slider */}
-        <div className="space-y-3 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800/50">
-          <div className="flex justify-between">
-            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">Steps</label>
-            <span className="text-[10px] font-mono text-blue-500 font-bold">{steps}</span>
-          </div>
-          <input
-            type="range"
-            min="1"
-            max="50"
-            value={steps}
-            onChange={(e) => setSteps(Number(e.target.value))}
-            className="w-full h-1 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
-          />
+      {/* 🚫 Negative Prompt (Общий для всех воркеров) */}
+      <div className="group space-y-2">
+        <div className="flex items-center gap-2 px-1" title="What to exclude from the output. Helps remove noise or unwanted artifacts.">
+          <label className="text-[10px] font-black uppercase tracking-widest text-red-500/60">Negative Shield</label>
+          <span className="text-[8px] border border-red-500/20 text-red-500/50 px-1 rounded">FILTER</span>
         </div>
-
-        {/* Guidance Slider */}
-        <div className="space-y-3 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800/50">
-          <div className="flex justify-between">
-            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">Guidance</label>
-            <span className="text-[10px] font-mono text-purple-500 font-bold">{guidance.toFixed(1)}</span>
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="20"
-            step="0.5"
-            value={guidance}
-            onChange={(e) => setGuidance(Number(e.target.value))}
-            className="w-full h-1 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
-          />
-        </div>
+        <input
+          type="text"
+          value={negativePrompt}
+          onChange={(e) => setNegativePrompt(e.target.value)}
+          placeholder="low quality, noise, distortion..."
+          className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 px-4 py-3 rounded-xl font-mono text-[11px] outline-hidden focus:border-red-500/30 transition-all"
+        />
       </div>
 
-      {/* 🔥 Generate Action */}
+      {/* ⚙️ Сюда вставятся специфичные слайдеры (Steps, Duration, etc.) */}
+      <div className="grid grid-cols-2 gap-4">
+        {children}
+      </div>
+
+      {/* 🔥 Кнопка запуска */}
       <button
-        onClick={() => onGenerate(prompt, steps, guidance)}
-        className="group relative w-full overflow-hidden bg-zinc-900 dark:bg-white text-white dark:text-black py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-xs transition-all active:scale-[0.98]"
+        onClick={() => onGenerate(prompt, negativePrompt, selectedModel)}
+        className="cursor-pointer group relative w-full overflow-hidden bg-zinc-900 dark:bg-white text-white dark:text-black py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-xs transition-all active:scale-[0.98]"
       >
         <div className="absolute inset-0 bg-linear-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         <span className="relative z-10 flex items-center justify-center gap-3">
@@ -74,11 +82,6 @@ export const PromptForm = ({ onGenerate }: { onGenerate: (p: string, s: number, 
           </svg>
         </span>
       </button>
-
-      <div className="px-1 py-2 flex items-center gap-2 opacity-50">
-        <div className="w-1 h-1 bg-zinc-400 rounded-full" />
-        <span className="text-[9px] font-mono uppercase italic">Estimated compute time: ~4.2s</span>
-      </div>
     </div>
   );
 };

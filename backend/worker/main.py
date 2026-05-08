@@ -1,5 +1,6 @@
 import asyncio
 import time
+import torch
 from backend.shared.services.redis import RedisManager
 from backend.shared.utils import setup_graceful_exit
 from backend.worker.utils.log import get_worker_logger
@@ -40,4 +41,6 @@ async def main():
     logger.info("👋 Воркер остановлен.")
 
 if __name__ == "__main__":
+    if not torch.cuda.is_available():
+        raise RuntimeError("CUDA недоступна. Проверьте проброс GPU.")
     asyncio.run(main())

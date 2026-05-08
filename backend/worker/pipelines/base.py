@@ -17,9 +17,21 @@ class BaseGenerator(ABC):
         self.logger = get_worker_logger(self.__class__.__name__)
 
     @abstractmethod
-    def load_model(self):
+    def load_model(self, model_id: str):
         """Метод для загрузки конкретной модели."""
         pass
+    
+    def unload_model(self):
+        """Метод для выгрузки модели из памяти"""
+        self.logger.info("Unloading model and clearing VRAM...")
+        if self.model is not None:
+            # self.model.to("cpu")
+            del self.model
+            self.model = None
+
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.synchronize()
 
     @abstractmethod
     def run_generation(self, prompt: str, params):
@@ -28,8 +40,9 @@ class BaseGenerator(ABC):
 
     def generate(self, prompt: str, output_path: str, params):
         if self.model is None:
-            with bench("Loading Model"):
-                self.load_model()
+            model_id = params.get("model_id") 
+            with bench(f"Loading Model {model_id}"):
+                self.load_model(model_id)
         
         try:
             # Создаем директорию, если её нет
@@ -40,15 +53,14 @@ class BaseGenerator(ABC):
               result = self.run_generation(prompt, params)
             
             # Сохранение (логика сохранения у всех разная, поэтому вернем путь)
-            return self.save(result, path)
+            return self.save(result, path, params)
         finally:
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
+            self.unload_model()
 
-    def save(self, result, path: Path):
+    def save(self, result, path: Path, params: dict):
         with bench("Saving Result"):
-          return self.save_result(result, path)
+          return self.save_result(result, path, params)
     
-    def save_result(self, result, path: Path):
+    def save_result(self, result, path: Path, params: dict):
         # По умолчанию просто возвращаем путь, если сохранение внутри run_generation
         return str(path)

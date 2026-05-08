@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 import redis.asyncio as redis
-from backend.shared.constants import ForgeType
+from backend.shared.constants import ForgeType, TaskStatus
 from backend.shared.config import settings
 from backend.shared.log import get_logger
 
@@ -56,14 +56,14 @@ class RedisManager:
             {"task_id": task_id, "task_type": task_type, "prompt": prompt, "params": params}
         )
 
-    async def publish_result_to_stream(self, task_id: str, task_type: ForgeType, status: str, output_path: str = "", error_message: str = ""):
+    async def publish_result_to_stream(self, task_id: str, task_type: ForgeType, status: TaskStatus, output_path: str = "", error_message: str = ""):
         """Publishes task completion or failure results."""
         return await self.xadd(
             f"forge:results:{task_type}", 
             {
                 "task_id": task_id,
-                "task_type": task_type,
-                "status": status,
+                "task_type": str(task_type),
+                "status": str(status),
                 "output_path": output_path or "",
                 "error_message": error_message or ""
             }

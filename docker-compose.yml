@@ -96,53 +96,53 @@ services:
     networks:
       - forge-network
 
-  # forge-worker-sound:
-  #   <<: *worker-base
-  #   container_name: forge-worker-sound
-  #   environment:
-  #     <<: *worker-common-env
-  #     FORGE_TYPE: SOUND
-
-  # forge-worker-text:
-  #   <<: *worker-base
-  #   container_name: forge-worker-text
-  #   environment:
-  #     <<: *worker-common-env
-  #     FORGE_TYPE: TEXT
-
-  # forge-worker-ui:
-  #   <<: *worker-base
-  #   container_name: forge-worker-ui
-  #   environment:
-  #     <<: *worker-common-env
-  #     FORGE_TYPE: UI
-
-  # forge-worker-image:
-  #   <<: *worker-base
-  #   container_name: forge-worker-image
-  #   environment:
-  #     <<: *worker-common-env
-  #     FORGE_TYPE: IMAGE
-
-  forge-ui:
-    image: ghcr.io/ai-warevo/forge-ui:latest
-    build:
-      context: .
-      dockerfile: ./frontend/Dockerfile
-      args:
-        - NEXT_PUBLIC_API_URL=http://forge-api:8000
-    pull_policy: if_not_present
-    restart: always
-    container_name: forge-ui
-    ports:
-      - "3000:3000"
+  forge-worker-sound:
+    <<: *worker-base
+    container_name: forge-worker-sound
     environment:
-      - NEXT_PUBLIC_API_URL=http://forge-api:8000
-    depends_on:
-      forge-api:
-        condition: service_healthy
-    networks:
-      - forge-network
+      <<: *worker-common-env
+      FORGE_TYPE: SOUND
+
+  forge-worker-text:
+    <<: *worker-base
+    container_name: forge-worker-text
+    environment:
+      <<: *worker-common-env
+      FORGE_TYPE: TEXT
+
+  forge-worker-ui:
+    <<: *worker-base
+    container_name: forge-worker-ui
+    environment:
+      <<: *worker-common-env
+      FORGE_TYPE: UI
+
+  forge-worker-image:
+    <<: *worker-base
+    container_name: forge-worker-image
+    environment:
+      <<: *worker-common-env
+      FORGE_TYPE: IMAGE
+
+  # forge-ui:
+  #   image: ghcr.io/ai-warevo/forge-ui:latest
+  #   build:
+  #     context: .
+  #     dockerfile: ./frontend/Dockerfile
+  #     args:
+  #       - NEXT_PUBLIC_API_URL=http://localhost:8000
+  #   pull_policy: if_not_present
+  #   restart: always
+  #   container_name: forge-ui
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - NEXT_PUBLIC_API_URL=http://localhost:8000
+  #   depends_on:
+  #     forge-api:
+  #       condition: service_healthy
+  #   networks:
+  #     - forge-network
 
 networks:
   forge-network:
