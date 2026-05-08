@@ -9,6 +9,7 @@ x-worker-common-env: &worker-common-env
   HF_HOME: /app/models/huggingface
 
 x-worker-base: &worker-base
+  image: ghcr.io/ai-warevo/forge-worker:latest
   build:
     context: .
     dockerfile: ./backend/worker/Dockerfile
@@ -65,6 +66,7 @@ services:
       - forge-network
 
   forge-api:
+    image: ghcr.io/ai-warevo/forge-api:latest
     build:
       context: .
       dockerfile: ./backend/api/Dockerfile
@@ -123,6 +125,7 @@ services:
   #     FORGE_TYPE: IMAGE
 
   forge-ui:
+    image: ghcr.io/ai-warevo/forge-ui:latest
     build:
       context: .
       dockerfile: ./frontend/Dockerfile
