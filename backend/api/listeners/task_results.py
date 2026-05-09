@@ -59,7 +59,7 @@ class ResultListener:
         task_type = fields.get('task_type', '')
         status = fields.get('status', '')
 
-        if status == TaskStatus.SUCCESS.value and task_type != ForgeType.TEXT.value:
+        if status == TaskStatus.SUCCESS.value:
             result_path = fields.get('result')
             output_path = '/app/output'
             if result_path and result_path.startswith(output_path):
