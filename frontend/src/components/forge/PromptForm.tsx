@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, ReactNode, useEffect } from 'react';
+import { useState, ReactNode } from 'react';
 import { ForgeSelect } from './ForgeSelect';
 import { ControlSkeleton } from './ControlSkeleton';
 
@@ -18,20 +18,9 @@ export interface AIModel {
 }
 
 export const PromptForm = ({ defaults, onGenerate, models, children, placeholder }: PromptFormProps) => {
-  const [prompt, setPrompt] = useState('');
-  const [negativePrompt, setNegativePrompt] = useState('');
-  const [selectedModel, setSelectedModel] = useState('');
-
-  useEffect(() => {
-    if (defaults?.prompt) setPrompt(defaults.prompt);
-    if (defaults?.negativePrompt) setNegativePrompt(defaults.negativePrompt);
-  }, [defaults]);
-
-  useEffect(() => {
-    if (!selectedModel && models?.length) {
-      setSelectedModel(models[0].id);
-    }
-  }, [models]);
+  const [prompt, setPrompt] = useState(defaults?.prompt || '');
+  const [negativePrompt, setNegativePrompt] = useState(defaults?.negativePrompt || '');
+  const [selectedModel, setSelectedModel] = useState(models?.at(0)?.id || '');
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-top-2 duration-500">
@@ -63,7 +52,6 @@ export const PromptForm = ({ defaults, onGenerate, models, children, placeholder
       </div>
 
       {/* 🤖 Model Selector (Общий компонент) */}
-      ai={selectedModel}
       {models && (<ForgeSelect
         value={selectedModel}
         onChange={(val) => setSelectedModel(val)}

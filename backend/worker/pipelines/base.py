@@ -1,7 +1,7 @@
 import torch
 from abc import ABC, abstractmethod
 from pathlib import Path
-from backend.shared.utils import bench, get_output_path
+from backend.shared.utils import bench
 from backend.worker.utils.log import get_worker_logger
 
 class BaseGenerator(ABC):

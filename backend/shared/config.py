@@ -4,6 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     REDIS_HOST: str = Field("localhost")
     REDIS_PORT: int = Field(6379)
+    API_BASE_URL: str = Field("http://localhost:8000")
     DATABASE_URL: str = Field("sqlite:///./db/default.db")
     OUTPUT_DIR: str = Field("/app/output")
     MODEL_UNLOAD_TIMEOUT: int = Field(60)

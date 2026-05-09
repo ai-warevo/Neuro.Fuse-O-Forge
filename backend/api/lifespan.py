@@ -1,12 +1,11 @@
 import asyncio
-from contextlib import asynccontextmanager
-from backend.api.utils.log import get_api_logger
-from backend.shared.utils import setup_graceful_exit
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
+from backend.api.listeners.task_results import ResultListener
 from backend.api.models.task import Base
 from backend.api.services.database import engine_async
+from backend.api.utils.log import get_api_logger
 from backend.shared.services.redis import RedisManager
-from backend.api.listeners.task_results import listen_to_results
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,10 +16,18 @@ async def lifespan(app: FastAPI):
         app.state.broker = broker
         
         logger = get_api_logger("api")
-        bg_task = asyncio.create_task(listen_to_results(broker, logger))
+        listener = ResultListener(broker, logger)
+        bg_task = asyncio.create_task(listener.start())
         
         yield
         
-        logger.info("👋 api остановлен.")
+        logger.info("🛑 Завершение работы: остановка фоновых задач...")
         bg_task.cancel()
+        
+        try:
+            await asyncio.wait_for(bg_task, timeout=5.0)
+        except (asyncio.CancelledError, asyncio.TimeoutError):
+            logger.debug("⏳ Фоновая задача listen_to_results остановлена.")
+        
+        logger.info("👋 API полностью остановлен.")
         await asyncio.gather(bg_task, return_exceptions=True)

@@ -17,7 +17,7 @@ class Task(Base):
     type = Column(SQLAlchemyEnum(ForgeType))
     prompt = Column(String)
     params = Column(JSON)
-    output_path = Column(String)
+    result = Column(String)
     error_message = Column(Text)
 
     __table_args__ = (

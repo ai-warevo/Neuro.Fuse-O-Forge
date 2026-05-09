@@ -30,12 +30,12 @@ class RedisManager:
         key = f"forge:health:{self.consumer_name}"
         await self.client.set(key, "online", ex=30)
     
-    async def fetch_tasks(self, stream_name: str, group_name: str, count=1, block=5000):
+    async def fetch_tasks(self, streams: dict, group_name: str, count=1, block=5000):
         """Получение задач из стрима."""
         return await self.client.xreadgroup(
             groupname=group_name,
             consumername=self.consumer_name,
-            streams={stream_name: ">"},
+            streams=streams,
             count=count,
             block=block
         )
@@ -56,16 +56,16 @@ class RedisManager:
             {"task_id": task_id, "task_type": task_type, "prompt": prompt, "params": params}
         )
 
-    async def publish_result_to_stream(self, task_id: str, task_type: ForgeType, status: TaskStatus, output_path: str = "", error_message: str = ""):
+    async def publish_result_to_stream(self, task_id: str, task_type: ForgeType, status: TaskStatus, result: str = "", error_message: str = ""):
         """Publishes task completion or failure results."""
         return await self.xadd(
-            f"forge:results:{task_type}", 
+            f"forge:results:{task_type.value}", 
             {
                 "task_id": task_id,
-                "task_type": str(task_type),
-                "status": str(status),
-                "output_path": output_path or "",
-                "error_message": error_message or ""
+                "task_type": task_type.value,
+                "status": status.value,
+                "result": result,
+                "error_message": error_message
             }
         )
 

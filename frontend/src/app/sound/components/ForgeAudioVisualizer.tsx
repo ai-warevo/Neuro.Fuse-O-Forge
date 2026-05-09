@@ -1,6 +1,7 @@
+import { ForgeTaskResult } from "@/types";
 import { useState } from "react";
 
-export const ForgeAudioVisualizer = ({ isGenerating, result }: { isGenerating: boolean, result: string }) => {
+export const ForgeAudioVisualizer = ({ isGenerating, taskResult }: { isGenerating: boolean, result: ForgeTaskResult }) => {
   const [isPlaying, setPlaying] = useState(false); 
   return (
     <div className="relative h-64 bg-zinc-950 rounded-3xl overflow-hidden border border-zinc-800 shadow-2xl flex items-center justify-center group">

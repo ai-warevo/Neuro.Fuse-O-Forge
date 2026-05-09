@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
 from backend.api.routes.health import router as health_router
@@ -24,3 +25,4 @@ app.add_middleware(
 app.include_router(health_router, tags=["System"])
 app.include_router(tasks_router, prefix="/tasks", tags=["Tasks"])
 app.include_router(ws_router)
+app.mount("/media", StaticFiles(directory="/app/output"), name="media")

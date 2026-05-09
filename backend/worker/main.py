@@ -13,17 +13,15 @@ logger = get_worker_logger("main")
 
 async def run_iteration(broker: RedisManager):
     """Один цикл опроса брокера и запуска задач."""
-    response = await broker.fetch_tasks(stream_name, group_name)
+    response = await broker.fetch_tasks({stream_name: ">"}, group_name)
     if not response:
         return
 
     processor = TaskProcessor(broker)
     for _, messages in response:
         for m_id, m_fields in messages:
-            try:
-              await processor.execute(m_id, m_fields)
-            finally:
-              await broker.acknowledge(stream_name, group_name, m_id)
+            await processor.execute(m_id, m_fields)
+            await broker.acknowledge(stream_name, group_name, m_id)
 
 async def main():
     async with RedisManager(WORKER_TYPE) as broker:

@@ -1,4 +1,11 @@
-export const ForgeImageVisualizer = ({ isGenerating, generatedImageUrl}: { isGenerating: boolean, generatedImageUrl: string}) => {
+import { ForgeTaskResult, ForgeTaskStatus } from "@/types";
+
+export const ForgeImageVisualizer = ({ isGenerating, taskResult}: { isGenerating: boolean, taskResult: ForgeTaskResult}) => {
+  const generatedImageUrl = taskResult?.status === ForgeTaskStatus.SUCCESS ? taskResult.result : null;
+  const error = (taskResult?.status === ForgeTaskStatus.ERROR || taskResult?.status === ForgeTaskStatus.TIMEOUT)
+    ? taskResult.error_message
+    : null;
+
   return (
   <div className="relative aspect-square lg:h-[600px] bg-zinc-950 rounded-3xl overflow-hidden border border-zinc-800 shadow-2xl flex items-center justify-center group">
       
@@ -7,6 +14,12 @@ export const ForgeImageVisualizer = ({ isGenerating, generatedImageUrl}: { isGen
       <div className="absolute top-8 right-8 w-6 h-6 border-t border-r border-zinc-800 rounded-tr" />
       <div className="absolute bottom-8 left-8 w-6 h-6 border-b border-l border-zinc-800 rounded-bl" />
       <div className="absolute bottom-8 right-8 w-6 h-6 border-b border-r border-zinc-800 rounded-br" />
+
+      {error && !isGenerating && (
+        <div className="absolute top-12 text-red-500 font-mono text-[10px] z-30 bg-red-500/5 px-3 py-1 border border-red-500/20 rounded">
+          ERROR: {error}
+        </div>
+      )}
 
       {generatedImageUrl ? (
           <img src={generatedImageUrl} alt="Result" className="w-[85%] h-[85%] object-contain rounded-lg animate-in zoom-in-95 duration-500 shadow-2xl" />

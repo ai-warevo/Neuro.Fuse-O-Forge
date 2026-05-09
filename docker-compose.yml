@@ -76,6 +76,7 @@ services:
     ports:
       - "8000:8000"
     environment:
+      - BASE_URL=http://localhost:8000
       - REDIS_HOST=forge-redis
       - REDIS_PORT=6379
       - DATABASE_URL=sqlite+aiosqlite:////app/db/forge.db
@@ -126,11 +127,11 @@ services:
 
   forge-ui:
     image: ghcr.io/ai-warevo/forge-ui:latest
-    build:
-      context: .
-      dockerfile: ./frontend/Dockerfile
-      args:
-        - NEXT_PUBLIC_API_URL=http://localhost:8000
+    # build:
+    #   context: .
+    #   dockerfile: ./frontend/Dockerfile
+    #   args:
+    #     - NEXT_PUBLIC_API_URL=http://localhost:8000
     pull_policy: if_not_present
     restart: always
     container_name: forge-ui

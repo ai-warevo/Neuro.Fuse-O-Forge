@@ -26,8 +26,8 @@ class TaskProcessor:
             return self.logger.error(f"❌ Ошибка парсинга {message_id}: {e}")
 
         try:
-            output_path = await self._run_pipeline(task_id, task_type, prompt, params)
-            await self.broker.publish_result_to_stream(task_id, task_type, TaskStatus.SUCCESS, output_path)
+            result = await self._run_pipeline(task_id, task_type, prompt, params)
+            await self.broker.publish_result_to_stream(task_id, task_type, TaskStatus.SUCCESS, result)
             self.logger.info(f"✅ Готово: {task_id}")
         except Exception as e:
             self.logger.error(f"❌ Ошибка пайплайна {task_id}: {str(e)}")

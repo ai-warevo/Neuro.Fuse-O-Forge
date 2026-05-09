@@ -6,6 +6,8 @@ import { AIModel, PromptForm } from "./PromptForm";
 import { ForgeTerminal } from "../ForgeTerminal";
 import { ControlRenderer } from "./ControlRenderer";
 import { ControlSkeleton } from "./ControlSkeleton";
+import { useWebSocket } from "@/hooks/useWebSocket";
+import { useForgeStore } from "@/store";
 
 interface UniversalForgeProps
 {
@@ -25,8 +27,10 @@ export const UniversalForge = ({
 }: UniversalForgeProps) => {
   const [data, setData] = useState<{controls: ForgeControl[], models: AIModel[]} | null>(null);
   const [params, setParams] = useState<any>({});
-  const [result, setResult] = useState<string | null>(null);
+  const [taskId, setTaskId] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const taskResult = useForgeStore(s => s.taskResult);
+  useWebSocket(taskId);
 
   useEffect(() => {
     fetchForgeConfig(forgeType).then((res: any) => {
@@ -53,7 +57,7 @@ export const UniversalForge = ({
     
     try {
       const response = await createForgeTask(payload);
-      setResult(response?.data.id);
+      setTaskId(response?.data.id);
     } finally {
       setIsGenerating(false);
     }
@@ -65,7 +69,8 @@ export const UniversalForge = ({
         <ForgeHeader title={headerInfo.title} unit={headerInfo.unit} borderColor={headerInfo.color} />
         
         <div className="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 shadow-sm">
-          <PromptForm placeholder={placeholder} onGenerate={handleGenerate} models={data?.models || null} defaults={defaults}>
+          <PromptForm key={data ? 'loaded' : 'loading'} 
+           placeholder={placeholder} onGenerate={handleGenerate} models={data?.models || null} defaults={defaults}>
               {data?.controls.map((ctrl) => (
                 <ControlRenderer
                   key={ctrl.id}
@@ -79,7 +84,7 @@ export const UniversalForge = ({
       </div>
 
       <div className="lg:col-span-8 space-y-6">
-        <Visualizer result={result} isGenerating={isGenerating}/>
+        <Visualizer taskResult={taskResult} isGenerating={isGenerating}/>
         <ForgeTerminal />
       </div>
     </div>

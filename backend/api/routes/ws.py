@@ -8,7 +8,7 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
     await websocket_manager.connect(task_id, websocket)
     try:
         while True:
-            # Keep the connection open with a heartbeat
-            await asyncio.sleep(10)  # Adjust the interval as needed
+            data = await websocket.receive_text() 
+            print(f"Клиент прислал: {data}")
     except WebSocketDisconnect:
         await websocket_manager.disconnect(task_id, websocket)
