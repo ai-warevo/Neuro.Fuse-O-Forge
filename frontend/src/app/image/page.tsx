@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import axios from 'axios';
-import { PromptForm } from '@/components/PromptForm';
+import { PromptForm } from '@/components/forge/PromptForm';
 import { ForgeTerminal } from '@/components/ForgeTerminal';
 
 const IMAGE_MODELS = [

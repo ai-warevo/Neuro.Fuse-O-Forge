@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PromptForm } from '@/components/PromptForm';
+import { PromptForm } from '@/components/forge/PromptForm';
 import { ForgeTerminal } from '@/components/ForgeTerminal';
 import axios from 'axios';
 
