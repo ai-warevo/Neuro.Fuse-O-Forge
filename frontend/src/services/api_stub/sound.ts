@@ -1,4 +1,4 @@
-export const AUDIO_MODELS = [
+export const SOUND_MODELS = [
   { id: 'cvssp/audioldm2-music', name: 'AudioLDM2 Music' },
   { id: 'facebook/musicgen-small', name: 'MusicGen Small' }
 ];

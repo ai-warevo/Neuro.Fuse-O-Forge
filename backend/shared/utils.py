@@ -15,12 +15,14 @@ def get_output_path(task_id: str, task_type: ForgeType, timestamp: datetime) -> 
     output_dir = Path(settings.OUTPUT_DIR)
     task_dir = output_dir / task_type.value / year / month / day
     
-    if task_type == ForgeType.SOUND:
-        file_extension = ".wav"
-    elif task_type == ForgeType.IMAGE:
+    if task_type == ForgeType.IMAGE:
         file_extension = ".png"
+    elif task_type == ForgeType.SOUND:
+        file_extension = ".wav"
     elif task_type == ForgeType.TEXT:
         file_extension = ".txt"
+    elif task_type == ForgeType.UI:
+        file_extension = ".png"
     else:
         file_extension = ".bin"
     
