@@ -46,13 +46,14 @@ Neuro.Fuse-O-Forge/
 ## 🔧 Установка и запуск
 - Убедитесь, что на хост-машине установлен NVIDIA Container Toolkit.
 - Склонируйте репозиторий.
+- Получить HF_TOKEN [https://huggingface.co/settings/tokens/new?tokenType=read](https://huggingface.co/settings/tokens/new?tokenType=read)
 - Запустите всю экосистему:
 
 
 ### Docker compose
 
 ```sh
-docker compose down && docker compose build --build-arg BUILDKIT_INLINE_CACHE=1 && docker-compose up forge-api forge-worker-sound
+docker compose down && docker compose build --build-arg BUILDKIT_INLINE_CACHE=1 && HF_TOKEN=hf_XXXXXXXXXXXXXXXXXXXXXXXXXXXX docker-compose up forge-api forge-worker-sound
 ```
 
 ### .env + .venv
@@ -69,6 +70,7 @@ echo DATABASE_URL=sqlite+aiosqlite:///./volumes/db/forge.db > venv/.env.api
 # worker.base
 echo PYTHONUNBUFFERED=1 > venv/.env.worker.base
 echo HF_HOME=./volumes/models/huggingface >> venv/.env.worker.base
+echo HF_TOKEN=hf_XXXXXXXXXXXXXXXXXXXXXXXXXXXX >> venv/.env.worker.base
 
 # worker.#
 echo FORGE_TYPE=SOUND > venv/.env.worker.sound

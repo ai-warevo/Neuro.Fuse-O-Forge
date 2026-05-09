@@ -4,9 +4,12 @@ x-backend-common-env: &backend-common-env
   PYTHONPATH: /app
   PYTHONUNBUFFERED: 1
 
-x-worker-common-env: &worker-common-env
+x-worker-base-env: &worker-base-env
   <<: *backend-common-env
   HF_HOME: /app/models/huggingface
+  # https://huggingface.co/settings/tokens/new?tokenType=read
+  # HF_TOKEN: hf_XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  HF_TOKEN: ${HF_TOKEN}
 
 x-worker-base: &worker-base
   image: ghcr.io/ai-warevo/forge-worker:latest
@@ -101,28 +104,28 @@ services:
     <<: *worker-base
     container_name: forge-worker-sound
     environment:
-      <<: *worker-common-env
+      <<: *worker-base-env
       FORGE_TYPE: SOUND
 
   forge-worker-text:
     <<: *worker-base
     container_name: forge-worker-text
     environment:
-      <<: *worker-common-env
+      <<: *worker-base-env
       FORGE_TYPE: TEXT
 
   forge-worker-ui:
     <<: *worker-base
     container_name: forge-worker-ui
     environment:
-      <<: *worker-common-env
+      <<: *worker-base-env
       FORGE_TYPE: UI
 
   forge-worker-image:
     <<: *worker-base
     container_name: forge-worker-image
     environment:
-      <<: *worker-common-env
+      <<: *worker-base-env
       FORGE_TYPE: IMAGE
 
   forge-ui:
