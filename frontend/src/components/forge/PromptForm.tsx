@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, ReactNode } from 'react';
+import { useState, ReactNode, useEffect } from 'react';
+import { ForgeSelect } from './ForgeSelect';
+import { ControlSkeleton } from './ControlSkeleton';
 
 interface PromptFormProps {
   onGenerate: (prompt: string, negativePrompt: string, modelId: string) => void;
   children?: ReactNode;
   placeholder?: string;
-  models: AIModel[];
+  models: AIModel[] | null;
   defaults: Record<string, string>;
 }
 
@@ -16,27 +18,23 @@ export interface AIModel {
 }
 
 export const PromptForm = ({ defaults, onGenerate, models, children, placeholder }: PromptFormProps) => {
-  const [prompt, setPrompt] = useState(defaults?.prompt || '');
-  const [negativePrompt, setNegativePrompt] = useState(defaults?.negativePrompt || '');
-  const [selectedModel, setSelectedModel] = useState(models[0]?.id || '');
+  const [prompt, setPrompt] = useState('');
+  const [negativePrompt, setNegativePrompt] = useState('');
+  const [selectedModel, setSelectedModel] = useState('');
+
+  useEffect(() => {
+    if (defaults?.prompt) setPrompt(defaults.prompt);
+    if (defaults?.negativePrompt) setNegativePrompt(defaults.negativePrompt);
+  }, [defaults]);
+
+  useEffect(() => {
+    if (!selectedModel && models?.length) {
+      setSelectedModel(models[0].id);
+    }
+  }, [models]);
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-top-2 duration-500">
-
-      {/* 🤖 Model Selector (Общий компонент) */}
-      <div className="group space-y-2">
-        <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 px-1">Neural Core Selection</label>
-        <select 
-          value={selectedModel}
-          onChange={(e) => setSelectedModel(e.target.value)}
-          className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 p-3 rounded-xl font-mono text-[11px] outline-hidden focus:border-blue-500/50 transition-all cursor-pointer appearance-none"
-        >
-          {models.map(m => (
-            <option key={m.id} value={m.id}>{m.name}</option>
-          ))}
-        </select>
-      </div>
-      
       {/* 📝 Main Prompt */}
       <div className="group space-y-2">
         <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 px-1">Neural Input</label>
@@ -63,6 +61,16 @@ export const PromptForm = ({ defaults, onGenerate, models, children, placeholder
           className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 px-4 py-3 rounded-xl font-mono text-[11px] outline-hidden focus:border-red-500/30 transition-all"
         />
       </div>
+
+      {/* 🤖 Model Selector (Общий компонент) */}
+      ai={selectedModel}
+      {models && (<ForgeSelect
+        value={selectedModel}
+        onChange={(val) => setSelectedModel(val)}
+        options={models.map(m => ({label: m.name, value: m.id}))}
+        label="Neural Core Selection"
+        colorClass="text-zinc-400 "
+      />) || <ControlSkeleton />}
 
       {/* ⚙️ Сюда вставятся специфичные слайдеры (Steps, Duration, etc.) */}
       <div className="grid grid-cols-2 gap-4">

@@ -17,6 +17,7 @@ export const useWebSocket = (taskId: string) => {
     };
 
     socket.onmessage = (event) => {
+      console.info(event);
       const data = JSON.parse(event.data);
       if (data.type === 'taskStatus') {
         setTaskStatus(data.status);
