@@ -1,3 +1,4 @@
+import json
 from backend.shared.constants import ForgeType, TaskStatus
 from backend.shared.services.redis import RedisManager
 from backend.shared.utils import bench
@@ -20,7 +21,7 @@ class TaskProcessor:
             task_id = fields.get("task_id")
             task_type = ForgeType(fields.get("task_type"))
             prompt = fields.get("prompt")
-            params = fields.get("params")
+            params = json.loads(fields.get("params"))
         except Exception as e:
             return self.logger.error(f"❌ Ошибка парсинга {message_id}: {e}")
 

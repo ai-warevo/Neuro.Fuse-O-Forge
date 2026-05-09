@@ -1,6 +1,6 @@
-import ControlPanel from './components/ControlPanel';
-import ForgeTerminal from './components/ForgeTerminal';
-import StatsDashboard from './components/StatsDashboard';
+import { ControlPanel } from '@/components/ControlPanel';
+import { ForgeTerminal } from '@/components/ForgeTerminal';
+import { StatsDashboard } from '@/components/StatsDashboard';
 
 export default function Home() {
   return (

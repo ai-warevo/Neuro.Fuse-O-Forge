@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { PromptForm } from '../components/PromptForm';
-import ForgeTerminal from '../components/ForgeTerminal';
+import { PromptForm } from '@/components/PromptForm';
+import { ForgeTerminal } from '@/components/ForgeTerminal';
 import axios from 'axios';
 
-const LexiForge = () => {
+export default function LexiForge () {
   const [taskId, setTaskId] = useState<string | null>(null);
   const [streamedText, setStreamedText] = useState('');
 
@@ -89,5 +89,3 @@ const LexiForge = () => {
     </div>
   );
 };
-
-export default LexiForge;

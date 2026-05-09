@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { useForgeStore } from '../store/forgeStore';
+import { useForgeStore } from '@/store/forgeStore';
 
-const ForgeTerminal: React.FC = () => {
+export const ForgeTerminal: React.FC = () => {
   const logs = useForgeStore(s => s.logs);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -67,5 +67,3 @@ const ForgeTerminal: React.FC = () => {
     </div>
   );
 };
-
-export default ForgeTerminal;

@@ -52,7 +52,7 @@ Neuro.Fuse-O-Forge/
 ### Docker compose
 
 ```sh
-docker compose down && docker compose build --build-arg BUILDKIT_INLINE_CACHE=1 && docker-compose up forge-worker-sound forge-api
+docker compose down && docker compose build --build-arg BUILDKIT_INLINE_CACHE=1 && docker-compose up forge-api forge-worker-sound
 ```
 
 ### .env + .venv

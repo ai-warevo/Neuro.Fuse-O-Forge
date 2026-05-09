@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { useForgeStore, useStatsStore } from '../store';
+import { useForgeStore, useStatsStore } from '@/store';
 
-const useWebSocket = (taskId: string) => {
+export const useWebSocket = (taskId: string) => {
   const setTaskStatus = useForgeStore((state) => state.actions.setTaskStatus);
   const addLog = useForgeStore((state) => state.actions.addLog);
   const setGpuLoad = useStatsStore((state) => state.actions.setGpuLoad);
@@ -38,5 +38,3 @@ const useWebSocket = (taskId: string) => {
     };
   }, [taskId, setTaskStatus, addLog, setGpuLoad, setWorkersAvailable]);
 };
-
-export default useWebSocket;

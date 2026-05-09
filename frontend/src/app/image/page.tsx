@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import axios from 'axios';
-import { PromptForm } from '../components/PromptForm';
-import ForgeTerminal from '../components/ForgeTerminal';
+import { PromptForm } from '@/components/PromptForm';
+import { ForgeTerminal } from '@/components/ForgeTerminal';
 
 const IMAGE_MODELS = [
   { id: 'segmind/tiny-sd', name: 'Tiny-SD (Ultra Fast)' },

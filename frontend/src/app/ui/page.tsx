@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { PromptForm } from '../components/PromptForm';
-import ForgeTerminal from '../components/ForgeTerminal';
+import { PromptForm } from '@/components/PromptForm';
+import { ForgeTerminal } from '@/components/ForgeTerminal';
 import axios from 'axios';
 
-const LayoutForge = () => {
+export default function LayoutForge () {
   const [taskId, setTaskId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
 
@@ -115,5 +115,3 @@ const LayoutForge = () => {
     </div>
   );
 };
-
-export default LayoutForge;

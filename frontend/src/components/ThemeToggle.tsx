@@ -1,8 +1,8 @@
 'use client';
-import { useThemeStore } from '../store/useThemeStore';
 import { useEffect, useState } from 'react';
+import { useThemeStore } from '@/store/useThemeStore';
 
-export function ThemeToggle() {
+export const ThemeToggle = () => {
   const { theme, toggleTheme } = useThemeStore();
   const [mounted, setMounted] = useState(false);
 

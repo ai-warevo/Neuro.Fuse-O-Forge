@@ -1,13 +1,12 @@
 'use client';
 
-import { useThemeStore } from '../store/useThemeStore';
 import { useEffect, useState } from 'react';
+import { useThemeStore } from '@/store/useThemeStore';
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const theme = useThemeStore((state) => state.theme);
   const [mounted, setMounted] = useState(false);
 
-  // Avoid hydration mismatch by waiting for mount
   useEffect(() => {
     setMounted(true);
   }, []);

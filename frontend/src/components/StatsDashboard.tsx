@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import { useStatsStore } from '../store/statsStore';
 import { motion } from 'framer-motion';
+import { useStatsStore } from '@/store/statsStore';
 
-const StatsDashboard: React.FC = () => {
+export const StatsDashboard: React.FC = () => {
   const gpuLoad = useStatsStore(s => s.gpuLoad);
   const workersAvailable = useStatsStore(s => s.workersAvailable);
 
@@ -93,5 +93,3 @@ const StatsDashboard: React.FC = () => {
     </div>
   );
 };
-
-export default StatsDashboard;

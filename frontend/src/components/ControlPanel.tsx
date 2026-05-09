@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { useForgeStore } from '../store/forgeStore';
+import { useForgeStore } from '@/store/forgeStore';
 
-const ControlPanel: React.FC = () => {
+export const ControlPanel: React.FC = () => {
   const taskId = useForgeStore(s => s.taskId);
   const { setTaskId } = useForgeStore(s => s.actions);
 
@@ -53,5 +53,3 @@ const ControlPanel: React.FC = () => {
     </div>
   );
 };
-
-export default ControlPanel;
